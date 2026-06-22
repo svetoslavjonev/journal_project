@@ -1,0 +1,51 @@
+/* Dashboard — page-specific polish */
+
+.dashboard-grid .panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 16rem;
+}
+
+.dashboard-grid .panel > .clean-list,
+.dashboard-grid .panel > .compact-empty {
+  flex: 1;
+}
+
+.dashboard-grid .panel > .clean-list {
+  align-content: start;
+  grid-auto-rows: max-content;
+}
+
+.dashboard-grid .panel > .clean-list li {
+  min-height: 3.15rem;
+  align-content: start;
+}
+
+.dashboard-grid .panel .clean-list a {
+  font-size: 1rem;
+}
+
+.dashboard-grid .compact-empty {
+  min-height: 8rem;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  padding: 1rem 0.5rem;
+}
+
+.dashboard-grid .compact-empty h2 {
+  font-style: italic;
+  color: var(--muted-strong);
+}
+
+.dashboard-grid .compact-empty p {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (min-width: 961px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

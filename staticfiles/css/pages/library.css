@@ -1,0 +1,46 @@
+/* Library — book list, detail, forms */
+
+.detail-grid + .panel,
+.panel + .panel {
+  margin-top: 1.1rem;
+}
+
+.tag-assignment-form {
+  grid-template-columns: minmax(10rem, 1fr) minmax(10rem, 1fr) auto;
+}
+
+.tag-list a:not(.tag-chip) {
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  color: var(--muted-strong);
+  text-decoration: none;
+}
+
+.tag-list a:not(.tag-chip):hover {
+  color: var(--ribbon);
+}
+
+.form-panel {
+  max-width: 46rem;
+}
+
+/* Book detail: title gets a touch of warmth */
+.page-heading h1 + p {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-style: italic;
+  color: var(--muted-strong);
+  margin-top: -0.25rem;
+}
+
+.detail-grid .panel h2 {
+  font-style: italic;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+
+@media (max-width: 760px) {
+  .tag-assignment-form {
+    grid-template-columns: 1fr;
+  }
+}

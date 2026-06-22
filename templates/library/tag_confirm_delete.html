@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete {{ tag.name }} | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="auth-panel">
+    <p class="eyebrow">Delete tag</p>
+    <h1>Delete {{ tag.name }}?</h1>
+    <p>This removes the tag from your sources. It does not delete sources or insights.</p>
+    <form method="post" class="form-stack" data-confirm="Delete this tag?">
+      {% csrf_token %}
+      <div class="actions">
+        <button class="button danger" type="submit">Delete tag</button>
+        <a class="button secondary" href="{{ cancel_url }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

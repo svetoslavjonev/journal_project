@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/accounts.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="intro">
+    <p class="eyebrow">Private knowledge space</p>
+    <h1>Collect sources, shape ideas, and keep what matters.</h1>
+    <p>
+      My Knowledge Space is a calm, structured home for the books, notes, questions,
+      and summaries that build your private library of thought.
+    </p>
+    <div class="actions">
+      <a class="button" href="{% url 'accounts:signup' %}">Sign up</a>
+      <a class="button secondary" href="{% url 'accounts:login' %}">Log in</a>
+    </div>
+  </section>
+{% endblock %}

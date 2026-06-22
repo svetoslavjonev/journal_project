@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading page-heading-row">
+    <div>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Your journal workspace.</h1>
+      <p>Manage your knowledge space from one place.</p>
+    </div>
+    <div class="actions">
+      <a class="button" href="{% url 'library:book_create' %}">Add book</a>
+      <a class="button secondary" href="{% url 'journal:insight_create' %}">Add insight</a>
+    </div>
+  </section>
+
+  <section class="stat-grid" aria-label="Journal summary">
+    <a class="stat-card" href="{% url 'library:book_list' %}">
+      <span class="stat-value">{{ book_count }}</span>
+      <span class="stat-label">Books</span>
+    </a>
+    <a class="stat-card" href="{% url 'journal:insight_list' %}">
+      <span class="stat-value">{{ insight_count }}</span>
+      <span class="stat-label">Insights</span>
+    </a>
+    <a class="stat-card" href="{% url 'library:book_list' %}?status=reading">
+      <span class="stat-value">{{ current_count }}</span>
+      <span class="stat-label">Reading</span>
+    </a>
+    <a class="stat-card" href="{% url 'journal:insight_list' %}">
+      <span class="stat-value">{{ pinned_count }}</span>
+      <span class="stat-label">Pinned</span>
+    </a>
+  </section>
+
+  <section class="dashboard-grid" aria-label="Dashboard sections">
+    <article class="panel">
+      <div class="panel-heading">
+        <h2>Currently reading</h2>
+        <a href="{% url 'library:book_list' %}?status=reading">View all</a>
+      </div>
+      {% if currently_reading %}
+        <ul class="item-list clean-list">
+          {% for book in currently_reading %}
+            <li>
+              <a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a>
+              <span class="muted">{{ book.creator|default:book.book_detail.author }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state compact-empty">
+          <h2>No current reads</h2>
+          <p>Set a book to reading when you start it.</p>
+        </div>
+      {% endif %}
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <h2>Recent books</h2>
+        <a href="{% url 'library:book_list' %}">View all</a>
+      </div>
+      {% if recent_books %}
+        <ul class="item-list clean-list">
+          {% for book in recent_books %}
+            <li>
+              <a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a>
+              <span class="muted">{{ book.get_status_display }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state compact-empty">
+          <h2>No books yet</h2>
+          <p>Add your first book to start your library.</p>
+        </div>
+      {% endif %}
+    </article>
+
+    <article class="panel">
+      <div class="panel-heading">
+        <h2>Recent insights</h2>
+        <a href="{% url 'journal:insight_list' %}">View all</a>
+      </div>
+      {% if recent_insights %}
+        <ul class="item-list clean-list">
+          {% for insight in recent_insights %}
+            <li>
+              <a href="{% url 'journal:insight_edit' insight.uuid %}">
+                {% if insight.title %}{{ insight.title }}{% else %}{{ insight.get_insight_type_display }}{% endif %}
+              </a>
+              <span class="muted">{{ insight.knowledge_item.title }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state compact-empty">
+          <h2>No insights yet</h2>
+          <p>Add notes, quotes, questions, or summaries from your sources.</p>
+        </div>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Tags | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading">
+    <p class="eyebrow">Organization</p>
+    <h1>Tags</h1>
+    <p>Create private labels and use them to filter sources and related insights.</p>
+  </section>
+
+  <section class="detail-grid">
+    <article class="panel">
+      <h2>Create tag</h2>
+      <form method="post" class="form-stack" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+          <div class="form-field">
+            {{ field.label_tag }}
+            {{ field }}
+            {{ field.errors }}
+          </div>
+        {% endfor %}
+        <button class="button" type="submit">Create tag</button>
+      </form>
+    </article>
+
+    <article class="panel">
+      <h2>Your tags</h2>
+      {% if tags %}
+        <ul class="tag-list">
+          {% for tag in tags %}
+            <li>
+              <a class="tag-chip" href="{% url 'library:book_list' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+              <a href="{% url 'journal:insight_list' %}?tag={{ tag.slug }}">Insights</a>
+              <a href="{% url 'tag_delete' tag.id %}">Delete</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>No tags yet.</p>
+      {% endif %}
+    </article>
+  </section>
+{% endblock %}

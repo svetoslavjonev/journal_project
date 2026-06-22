@@ -1,0 +1,51 @@
+/* Accounts — landing, login, signup */
+
+.intro {
+  max-width: 50rem;
+  margin: clamp(2rem, 7vw, 5rem) auto;
+  padding: clamp(1.5rem, 5vw, 3rem) 0;
+  text-align: center;
+}
+
+.intro .eyebrow {
+  margin-bottom: 1rem;
+}
+
+.intro h1 {
+  margin: 0 auto 1.1rem;
+  font-size: clamp(2.3rem, 6vw, 4rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.intro p:not(.eyebrow) {
+  max-width: 36rem;
+  margin: 0 auto 1.5rem;
+  color: var(--muted-strong);
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  line-height: 1.6;
+}
+
+.intro .actions {
+  justify-content: center;
+  margin-top: 1.75rem;
+}
+
+.form-panel {
+  margin: clamp(1.5rem, 5vw, 3rem) auto;
+  max-width: 28rem;
+}
+
+.form-panel h1 {
+  font-size: clamp(1.7rem, 4vw, 2.4rem);
+}
+
+.form-panel .actions {
+  margin-top: 0.5rem;
+}
+
+.form-panel .actions .button {
+  flex: 1;
+}

@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/search.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading">
+    <p class="eyebrow">Search</p>
+    <h1>Search your library and journal.</h1>
+  </section>
+
+  <form method="get" class="filter-bar search-bar">
+    <div class="form-field">
+      <label for="id_q">Search</label>
+      <input id="id_q" type="search" name="q" value="{{ query }}" placeholder="Sources, creators, notes, quotes">
+    </div>
+    <div class="filter-actions">
+      <button class="button" type="submit">Search</button>
+    </div>
+  </form>
+
+  {% if query %}
+    <section class="detail-grid">
+      <article class="panel">
+        <h2>Books</h2>
+        {% if books %}
+          <ul class="search-results-list">
+            {% for book in books %}
+              <li>
+                <a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a>
+                <span class="muted">{{ book.creator }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>No matching books.</p>
+        {% endif %}
+      </article>
+
+      <article class="panel">
+        <h2>Insights</h2>
+        {% if insights %}
+          <ul class="search-results-list">
+            {% for insight in insights %}
+              <li>
+                <a href="{% url 'journal:insight_edit' insight.uuid %}">
+                  {% if insight.title %}{{ insight.title }}{% else %}{{ insight.get_insight_type_display }}{% endif %}
+                </a>
+                <span class="muted">{{ insight.knowledge_item.title }}</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>No matching insights.</p>
+        {% endif %}
+      </article>
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <h2>Enter a search term</h2>
+      <p>Search source titles, creators, genres, summaries, insight titles, and insight content.</p>
+    </section>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,16 @@
+.venv/
+venv/
+.idea/
+__pycache__/
+*.py[cod]
+
+db.sqlite3
+journal_project/local_settings.py
+
+collected_static/
+mediafiles/
+
+devserver.log
+devserver.err
+
+docs/

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Insight | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/journal.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="auth-panel">
+    <p class="eyebrow">Delete insight</p>
+    <h1>Delete this insight?</h1>
+    <p>
+      This will remove the insight from {{ insight.knowledge_item.title }}. The
+      source will not be deleted.
+    </p>
+    <form method="post" class="form-stack" data-confirm="Delete this insight?">
+      {% csrf_token %}
+      <div class="actions">
+        <button class="button danger" type="submit">Delete insight</button>
+        <a class="button secondary" href="{{ cancel_url }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

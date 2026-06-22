@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Log In | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/accounts.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="form-panel">
+    <p class="eyebrow">Log in</p>
+    <h1>Open your journal.</h1>
+    <form method="post" class="form-stack" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+        <div class="form-field{% if field.errors %} has-error{% endif %}">
+          {{ field.label_tag }}
+          {{ field }}
+          {{ field.errors }}
+        </div>
+      {% endfor %}
+      <div class="actions">
+        <button class="button" type="submit">Log in</button>
+        <a class="button secondary" href="{% url 'accounts:signup' %}">Create account</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

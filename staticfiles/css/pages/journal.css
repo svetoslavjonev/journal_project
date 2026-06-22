@@ -1,0 +1,51 @@
+/* Journal — insights list and form */
+
+.insight-card {
+  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--ink-soft) 25%, var(--rule));
+}
+
+.insight-card .eyebrow {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--ribbon);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.insight-card:nth-child(4n + 2) .eyebrow { color: var(--indigo); }
+.insight-card:nth-child(4n + 3) .eyebrow { color: var(--gold); }
+.insight-card:nth-child(4n + 4) .eyebrow { color: var(--ink-soft); }
+
+.insight-card h2 {
+  font-style: normal;
+}
+
+.insight-card p:not(.muted) {
+  margin-bottom: 0;
+}
+
+.form-panel {
+  max-width: 48rem;
+}
+
+.form-panel p:not(.eyebrow):not(.help-text) {
+  font-family: var(--font-serif);
+  font-style: italic;
+}
+
+@media (max-width: 760px) {
+  .insight-card {
+    padding-left: 1.4rem;
+  }
+
+  .insight-card::before {
+    width: 4px;
+  }
+}

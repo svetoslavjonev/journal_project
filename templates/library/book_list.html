@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Books | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading page-heading-row">
+    <div>
+      <p class="eyebrow">Library</p>
+      <h1>Books</h1>
+      <p>Manage the book sources in your private knowledge space.</p>
+    </div>
+    <a class="button" href="{% url 'library:book_create' %}">Add book</a>
+  </section>
+
+  <form method="get" class="filter-bar">
+    <div class="form-field">
+      <label for="id_q">Search</label>
+      <input id="id_q" type="search" name="q" value="{{ filters.query }}" placeholder="Title, author, genre">
+    </div>
+    <div class="form-field">
+      <label for="id_status">Status</label>
+      <select id="id_status" name="status">
+        <option value="">Any status</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}"{% if filters.status == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="id_genre">Genre</label>
+      <input id="id_genre" type="search" name="genre" value="{{ filters.genre }}">
+    </div>
+    <div class="form-field">
+      <label for="id_tag">Tag</label>
+      <select id="id_tag" name="tag">
+        <option value="">Any tag</option>
+        {% for tag in tags %}
+          <option value="{{ tag.slug }}"{% if filters.tag == tag.slug %} selected{% endif %}>{{ tag.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="button" type="submit">Filter</button>
+      <a class="button secondary" href="{% url 'library:book_list' %}">Clear</a>
+    </div>
+  </form>
+
+  {% if books %}
+    <section class="table-wrap" aria-label="Books">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Status</th>
+            <th>Genre</th>
+            <th>Tags</th>
+            <th>Insights</th>
+            <th>Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for book in books %}
+            <tr>
+              <td data-label="Title"><a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a></td>
+              <td data-label="Author">{{ book.book_detail.author }}</td>
+              <td data-label="Status">{{ book.get_status_display }}</td>
+              <td data-label="Genre">{{ book.book_detail.genre|default:'-' }}</td>
+              <td data-label="Tags">
+                {% for tag in book.tags.all %}
+                  <a class="tag-chip" href="{% url 'library:book_list' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+                {% empty %}
+                  -
+                {% endfor %}
+              </td>
+              <td data-label="Insights">{{ book.insight_count }}</td>
+              <td data-label="Updated">{{ book.updated_at|date:'M j, Y' }}</td>
+              <td data-label="Actions" class="table-actions">
+                <a href="{% url 'library:book_edit' book.uuid %}">Edit</a>
+                <a href="{% url 'library:book_delete' book.uuid %}">Delete</a>
+              </td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <h2>No books found</h2>
+      <p>Add your first book or clear the current filters.</p>
+      <div class="actions">
+        <a class="button" href="{% url 'library:book_create' %}">Add book</a>
+        <a class="button secondary" href="{% url 'library:book_list' %}">Clear filters</a>
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

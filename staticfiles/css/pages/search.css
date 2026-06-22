@@ -1,0 +1,61 @@
+/* Search — page-specific polish */
+
+.search-bar {
+  padding: 1.35rem 1.4rem;
+}
+
+.search-bar .form-field label {
+  margin-bottom: 0.1rem;
+}
+
+.search-bar input[type="search"] {
+  padding: 0.85rem 1rem;
+  font-size: 1.15rem;
+  background: var(--paper);
+}
+
+.search-bar .button {
+  min-height: 2.9rem;
+  padding-inline: 1.5rem;
+}
+
+.search-results-list {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.search-results-list li {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+
+.search-results-list li:first-child {
+  padding-top: 0;
+}
+
+.search-results-list li:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.search-results-list a {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.search-results-list a:hover {
+  color: var(--ribbon);
+}
+
+.search-results-list .muted {
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+}

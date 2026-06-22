@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Insights | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/journal.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading page-heading-row">
+    <div>
+      <p class="eyebrow">Journal</p>
+      <h1>Insights</h1>
+      <p>Search and manage notes, quotes, questions, reflections, ideas, and summaries.</p>
+    </div>
+    <a class="button" href="{% url 'journal:insight_create' %}">Add insight</a>
+  </section>
+
+  <form method="get" class="filter-bar">
+    <div class="form-field">
+      <label for="id_q">Search</label>
+      <input id="id_q" type="search" name="q" value="{{ filters.query }}" placeholder="Title, content, source">
+    </div>
+    <div class="form-field">
+      <label for="id_type">Type</label>
+      <select id="id_type" name="type">
+        <option value="">Any type</option>
+        {% for value, label in insight_type_choices %}
+          <option value="{{ value }}"{% if filters.insight_type == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="id_source_type">Source</label>
+      <select id="id_source_type" name="source_type">
+        <option value="">Any source</option>
+        {% for value, label in source_type_choices %}
+          <option value="{{ value }}"{% if filters.source_type == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-field">
+      <label for="id_tag">Tag</label>
+      <select id="id_tag" name="tag">
+        <option value="">Any tag</option>
+        {% for tag in tags %}
+          <option value="{{ tag.slug }}"{% if filters.tag == tag.slug %} selected{% endif %}>{{ tag.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button class="button" type="submit">Filter</button>
+      <a class="button secondary" href="{% url 'journal:insight_list' %}">Clear</a>
+    </div>
+  </form>
+
+  {% if insights %}
+    <section class="insight-list" aria-label="Insights">
+      {% for insight in insights %}
+        <article class="panel insight-card">
+          <div class="insight-card-header">
+            <div>
+              <p class="eyebrow">{{ insight.get_insight_type_display }}</p>
+              <h2>
+                {% if insight.title %}
+                  {{ insight.title }}
+                {% else %}
+                  {{ insight.knowledge_item.title }}
+                {% endif %}
+              </h2>
+            </div>
+            <div class="table-actions">
+              <a href="{% url 'journal:insight_edit' insight.uuid %}">Edit</a>
+              <a href="{% url 'journal:insight_delete' insight.uuid %}">Delete</a>
+            </div>
+          </div>
+          <p>{{ insight.content|truncatewords:36 }}</p>
+          <p class="muted">
+            Source:
+            <a href="{% url 'library:book_detail' insight.knowledge_item.uuid %}">
+              {{ insight.knowledge_item.title }}
+            </a>
+            / {{ insight.created_at|date:'M j, Y' }}
+            {% if insight.page_number %} / page {{ insight.page_number }}{% endif %}
+          </p>
+        </article>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section class="empty-state">
+      <h2>No insights found</h2>
+      <p>Add an insight from a source page or clear the current filters.</p>
+      <a class="button" href="{% url 'journal:insight_create' %}">Add insight</a>
+    </section>
+  {% endif %}
+{% endblock %}

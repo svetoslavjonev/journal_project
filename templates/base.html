@@ -1,0 +1,73 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f3ecd9">
+  <title>{% block title %}Knowledge Space{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header" data-nav-open="false">
+    <a class="brand" href="{% url 'home' %}">
+      <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M6 4.75h9.25A2.75 2.75 0 0 1 18 7.5v11.75H8.75A2.75 2.75 0 0 1 6 16.5V4.75Z" />
+        <path d="M9 4.75v11.5A3 3 0 0 0 12 19.25" />
+        <path d="M15 4.75v5.5l-1.5-1-1.5 1v-5.5" />
+      </svg>
+      <span>My Knowledge Space</span>
+    </a>
+    <button type="button" class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="primary-nav">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <line x1="3" y1="6" x2="21" y2="6"/>
+        <line x1="3" y1="12" x2="21" y2="12"/>
+        <line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <nav id="primary-nav" class="site-nav" aria-label="Main navigation">
+      <a href="{% url 'dashboard' %}">Dashboard</a>
+      <a href="{% url 'library:book_list' %}">Books</a>
+      <a href="{% url 'journal:insight_list' %}">Insights</a>
+      <a href="{% url 'tag_list' %}">Tags</a>
+      <a href="{% url 'search' %}">Search</a>
+    </nav>
+    <div class="account-nav">
+      {% if request.user.is_authenticated %}
+        <span>{{ request.user.get_username }}</span>
+        <form method="post" action="{% url 'accounts:logout' %}" class="inline-form">
+          {% csrf_token %}
+          <button type="submit" class="link-button">Log out</button>
+        </form>
+      {% else %}
+        <a href="{% url 'accounts:login' %}">Log in</a>
+        <a href="{% url 'accounts:signup' %}">Sign up</a>
+      {% endif %}
+    </div>
+  </header>
+
+  {% include 'includes/messages.html' %}
+
+  <main id="main-content" class="page-shell">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <span>Your private space for sources, notes, and ideas.</span>
+  </footer>
+
+  <button type="button" class="back-to-top" aria-label="Back to top" hidden>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <polyline points="6 15 12 9 18 15"/>
+    </svg>
+  </button>
+
+  <script src="{% static 'js/main.js' %}" defer></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
