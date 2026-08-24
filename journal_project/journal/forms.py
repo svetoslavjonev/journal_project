@@ -20,7 +20,11 @@ class InsightForm(forms.Form):
         required=False,
         widget=forms.DateInput(attrs={'type': 'date'}),
     )
-    pinned = forms.BooleanField(required=False)
+    pinned = forms.BooleanField(
+        label='Pin this insight',
+        help_text='Mark it as important for quick reference.',
+        required=False,
+    )
 
     def __init__(self, *args, user, source=None, insight=None, **kwargs):
         initial = kwargs.pop('initial', {})

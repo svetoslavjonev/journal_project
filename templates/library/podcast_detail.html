@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ podcast.title }} | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading page-heading-row">
+    <div>
+      <p class="eyebrow">Podcast episode</p>
+      <h1>{{ podcast.title }}</h1>
+      <p>{{ detail.show_name }}</p>
+    </div>
+    <div class="actions">
+      <a class="button" href="{% url 'library:item_insight_create' podcast.uuid %}">Add insight</a>
+      <a class="button secondary" href="{% url 'library:podcast_edit' podcast.uuid %}">Edit</a>
+      <a class="button danger" href="{% url 'library:podcast_delete' podcast.uuid %}">Delete</a>
+    </div>
+  </section>
+
+  <section class="detail-grid">
+    <article class="panel">
+      <h2>Episode</h2>
+      <dl class="detail-list">
+        <dt>Show</dt>
+        <dd>{{ detail.show_name|default:'-' }}</dd>
+        <dt>Hosts</dt>
+        <dd>{{ podcast.creator|default:'-' }}</dd>
+        <dt>Guests</dt>
+        <dd>{{ detail.guests|linebreaksbr|default:'-' }}</dd>
+        <dt>URL</dt>
+        <dd>{% if podcast.source_url %}<a href="{{ podcast.source_url }}" rel="noopener noreferrer">Open source</a>{% else %}-{% endif %}</dd>
+        <dt>Status</dt>
+        <dd>{{ podcast.get_status_display }}</dd>
+      </dl>
+    </article>
+    <article class="panel">
+      <h2>My Summary</h2>
+      {% if podcast.summary %}<p>{{ podcast.summary|linebreaksbr }}</p>{% else %}<p>No summary yet.</p>{% endif %}
+    </article>
+  </section>
+
+  {% include 'library/includes/source_tags_insights.html' with item=podcast %}
+{% endblock %}

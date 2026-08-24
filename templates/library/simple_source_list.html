@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Books | Knowledge Space{% endblock %}
+{% block title %}{{ page_title }} | Knowledge Space{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
@@ -11,10 +11,10 @@
   <section class="page-heading page-heading-row">
     <div>
       <p class="eyebrow">Library</p>
-      <h1>Books</h1>
-      <p>Manage the book sources in your private knowledge space.</p>
+      <h1>{{ page_title }}</h1>
+      <p>{{ page_description }}</p>
     </div>
-    <a class="button" href="{% url 'library:book_create' %}">Add book</a>
+    <a class="button" href="{{ create_url }}">{{ create_label }}</a>
   </section>
 
   {% include 'library/includes/library_tabs.html' %}
@@ -22,7 +22,7 @@
   <form method="get" class="filter-bar">
     <div class="form-field">
       <label for="id_q">Search</label>
-      <input id="id_q" type="search" name="q" value="{{ filters.query }}" placeholder="Title, author, genre">
+      <input id="id_q" type="search" name="q" value="{{ filters.query }}" placeholder="Title, creator, summary">
     </div>
     <div class="form-field">
       <label for="id_status">Status</label>
@@ -34,8 +34,8 @@
       </select>
     </div>
     <div class="form-field">
-      <label for="id_genre">Genre</label>
-      <input id="id_genre" type="search" name="genre" value="{{ filters.genre }}">
+      <label for="id_specific_filter">{{ specific_filter_label }}</label>
+      <input id="id_specific_filter" type="search" name="{{ specific_filter_name }}" value="{{ specific_filter_value }}">
     </div>
     <div class="form-field">
       <label for="id_tag">Tag</label>
@@ -48,19 +48,19 @@
     </div>
     <div class="filter-actions">
       <button class="button" type="submit">Filter</button>
-      <a class="button secondary" href="{% url 'library:book_list' %}">Clear</a>
+      <a class="button secondary" href="{{ clear_url }}">Clear</a>
     </div>
   </form>
 
-  {% if books %}
-    {% include 'library/includes/collection_views.html' with items=books collection_label='Books' %}
+  {% if items %}
+    {% include 'library/includes/collection_views.html' with items=items collection_label=page_title %}
   {% else %}
     <section class="empty-state">
-      <h2>No books found</h2>
-      <p>Add your first book or clear the current filters.</p>
+      <h2>No {{ source_plural }} found</h2>
+      <p>Add your first source or clear the current filters.</p>
       <div class="actions">
-        <a class="button" href="{% url 'library:book_create' %}">Add book</a>
-        <a class="button secondary" href="{% url 'library:book_list' %}">Clear filters</a>
+        <a class="button" href="{{ create_url }}">{{ create_label }}</a>
+        <a class="button secondary" href="{{ clear_url }}">Clear filters</a>
       </div>
     </section>
   {% endif %}

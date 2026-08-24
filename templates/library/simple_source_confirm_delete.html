@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete {{ item.title }} | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="auth-panel">
+    <p class="eyebrow">Delete {{ source_label }}</p>
+    <h1>Delete {{ item.title }}?</h1>
+    <p>This permanently deletes the {{ source_label }}, its details, and attached insights.</p>
+    <form method="post" class="form-stack" data-confirm="Delete this {{ source_label }} and its insights?">
+      {% csrf_token %}
+      <div class="actions">
+        <button class="button danger" type="submit">Delete {{ source_label }}</button>
+        <a class="button secondary" href="{{ cancel_url }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

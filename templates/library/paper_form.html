@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="form-panel paper-form-panel">
+    <p class="eyebrow">Library · Paper</p>
+    <h1>{{ title }}</h1>
+    <form method="post" class="form-stack" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <fieldset class="form-section">
+        <legend>Paper</legend>
+        {% include 'includes/form_field.html' with field=form.title %}
+        {% include 'includes/form_field.html' with field=form.authors %}
+        {% include 'includes/form_field.html' with field=form.publication_year %}
+        {% include 'includes/form_field.html' with field=form.status %}
+      </fieldset>
+
+      <fieldset class="form-section form-section-primary">
+        <legend>Knowledge analysis</legend>
+        {% include 'includes/form_field.html' with field=form.key_research_question %}
+        {% include 'includes/form_field.html' with field=form.key_findings_practical_applications %}
+        {% include 'includes/form_field.html' with field=form.methodology_research_design %}
+        {% include 'includes/form_field.html' with field=form.sample_size_data_source %}
+        {% include 'includes/form_field.html' with field=form.asset_class %}
+        {% include 'includes/form_field.html' with field=form.summary %}
+      </fieldset>
+
+      <fieldset class="form-section form-section-secondary">
+        <legend>Reference details</legend>
+        {% include 'includes/form_field.html' with field=form.journal %}
+        {% include 'includes/form_field.html' with field=form.doi %}
+        {% include 'includes/form_field.html' with field=form.source_url %}
+      </fieldset>
+
+      <div class="actions">
+        <button class="button" type="submit">{{ submit_label }}</button>
+        <a class="button secondary" href="{{ cancel_url }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

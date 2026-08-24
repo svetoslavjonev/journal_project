@@ -78,7 +78,7 @@
           <p>{{ insight.content|truncatewords:36 }}</p>
           <p class="muted">
             Source:
-            <a href="{% url 'library:book_detail' insight.knowledge_item.uuid %}">
+            <a href="{{ insight.knowledge_item.get_absolute_url }}">
               {{ insight.knowledge_item.title }}
             </a>
             / {{ insight.created_at|date:'M j, Y' }}

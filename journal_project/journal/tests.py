@@ -211,7 +211,7 @@ class InsightCrudViewTests(TestCase):
             source_type=KnowledgeItem.SourceType.BOOK,
             title=title,
             creator=author,
-            status=KnowledgeItem.Status.READING,
+            status=KnowledgeItem.Status.IN_PROGRESS,
         )
         BookDetail.objects.create(knowledge_item=book, author=author)
         return book
@@ -277,6 +277,15 @@ class InsightCrudViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'My private insight')
         self.assertNotContains(response, 'Other private insight')
+
+    def test_insight_form_renders_compact_pin_toggle(self):
+        self.client.force_login(self.user)
+
+        response = self.client.get(reverse('journal:insight_create'))
+
+        self.assertContains(response, 'form-field-toggle')
+        self.assertContains(response, 'Pin this insight')
+        self.assertContains(response, 'Mark it as important for quick reference.')
 
     def test_insight_list_filters_by_query_type_and_source_type(self):
         self.create_insight(title='Focus note', content='Focused work matters.')

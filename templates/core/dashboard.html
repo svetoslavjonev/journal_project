@@ -11,75 +11,77 @@
   <section class="page-heading page-heading-row">
     <div>
       <p class="eyebrow">Dashboard</p>
-      <h1>Your journal workspace.</h1>
-      <p>Manage your knowledge space from one place.</p>
+      <h1>Your knowledge workspace.</h1>
+      <p>Manage sources and insights from one place.</p>
     </div>
     <div class="actions">
-      <a class="button" href="{% url 'library:book_create' %}">Add book</a>
+      <a class="button" href="{% url 'library:index' %}">Add source</a>
       <a class="button secondary" href="{% url 'journal:insight_create' %}">Add insight</a>
     </div>
   </section>
 
-  <section class="stat-grid" aria-label="Journal summary">
-    <a class="stat-card" href="{% url 'library:book_list' %}">
-      <span class="stat-value">{{ book_count }}</span>
-      <span class="stat-label">Books</span>
+  <section class="stat-grid" aria-label="Knowledge Space summary">
+    <a class="stat-card" href="{% url 'library:index' %}">
+      <span class="stat-value">{{ source_count }}</span>
+      <span class="stat-label">Sources</span>
     </a>
     <a class="stat-card" href="{% url 'journal:insight_list' %}">
       <span class="stat-value">{{ insight_count }}</span>
       <span class="stat-label">Insights</span>
     </a>
-    <a class="stat-card" href="{% url 'library:book_list' %}?status=reading">
-      <span class="stat-value">{{ current_count }}</span>
-      <span class="stat-label">Reading</span>
+    <a class="stat-card" href="{% url 'library:index' %}?status=in_progress">
+      <span class="stat-value">{{ in_progress_count }}</span>
+      <span class="stat-label">In progress</span>
     </a>
     <a class="stat-card" href="{% url 'journal:insight_list' %}">
       <span class="stat-value">{{ pinned_count }}</span>
-      <span class="stat-label">Pinned</span>
+      <span class="stat-label">Pinned insights</span>
     </a>
   </section>
 
   <section class="dashboard-grid" aria-label="Dashboard sections">
     <article class="panel">
       <div class="panel-heading">
-        <h2>Currently reading</h2>
-        <a href="{% url 'library:book_list' %}?status=reading">View all</a>
+        <h2>In progress</h2>
+        <a href="{% url 'library:index' %}?status=in_progress">View all</a>
       </div>
-      {% if currently_reading %}
+      {% if in_progress_sources %}
         <ul class="item-list clean-list">
-          {% for book in currently_reading %}
+          {% for source in in_progress_sources %}
             <li>
-              <a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a>
-              <span class="muted">{{ book.creator|default:book.book_detail.author }}</span>
+              <span class="source-type-indicator">{{ source.get_source_type_display|upper }}</span>
+              <a href="{{ source.get_absolute_url }}">{{ source.title }}</a>
+              <span class="muted">{{ source.get_status_display }}</span>
             </li>
           {% endfor %}
         </ul>
       {% else %}
         <div class="empty-state compact-empty">
-          <h2>No current reads</h2>
-          <p>Set a book to reading when you start it.</p>
+          <h2>No sources in progress</h2>
+          <p>Move a source into its in-progress status when you begin.</p>
         </div>
       {% endif %}
     </article>
 
     <article class="panel">
       <div class="panel-heading">
-        <h2>Recent books</h2>
-        <a href="{% url 'library:book_list' %}">View all</a>
+        <h2>Recent sources</h2>
+        <a href="{% url 'library:index' %}">View all</a>
       </div>
-      {% if recent_books %}
+      {% if recent_sources %}
         <ul class="item-list clean-list">
-          {% for book in recent_books %}
+          {% for source in recent_sources %}
             <li>
-              <a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a>
-              <span class="muted">{{ book.get_status_display }}</span>
+              <span class="source-type-indicator">{{ source.get_source_type_display|upper }}</span>
+              <a href="{{ source.get_absolute_url }}">{{ source.title }}</a>
+              <span class="muted">{{ source.get_status_display }}</span>
             </li>
           {% endfor %}
         </ul>
       {% else %}
         <div class="empty-state compact-empty">
-          <h2>No books yet</h2>
-          <p>Add your first book to start your library.</p>
+          <h2>No sources yet</h2>
+          <p>Add your first source to begin building your library.</p>
         </div>
       {% endif %}
     </article>
@@ -96,7 +98,7 @@
               <a href="{% url 'journal:insight_edit' insight.uuid %}">
                 {% if insight.title %}{{ insight.title }}{% else %}{{ insight.get_insight_type_display }}{% endif %}
               </a>
-              <span class="muted">{{ insight.knowledge_item.title }}</span>
+              <span class="muted">{{ insight.knowledge_item.get_source_type_display }} · {{ insight.knowledge_item.title }}</span>
             </li>
           {% endfor %}
         </ul>

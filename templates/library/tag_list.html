@@ -37,7 +37,7 @@
         <ul class="tag-list">
           {% for tag in tags %}
             <li>
-              <a class="tag-chip" href="{% url 'library:book_list' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+              <a class="tag-chip" href="{% url 'library:index' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
               <a href="{% url 'journal:insight_list' %}?tag={{ tag.slug }}">Insights</a>
               <a href="{% url 'tag_delete' tag.id %}">Delete</a>
             </li>

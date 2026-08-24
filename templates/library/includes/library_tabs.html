@@ -1,0 +1,7 @@
+<nav class="library-tabs" aria-label="Library source types">
+  <a href="{% url 'library:index' %}"{% if not active_source_type %} aria-current="page"{% endif %}>All</a>
+  <a href="{% url 'library:book_list' %}"{% if active_source_type == 'book' %} aria-current="page"{% endif %}>Books</a>
+  <a href="{% url 'library:paper_list' %}"{% if active_source_type == 'paper' %} aria-current="page"{% endif %}>Papers</a>
+  <a href="{% url 'library:article_list' %}"{% if active_source_type == 'article' %} aria-current="page"{% endif %}>Articles</a>
+  <a href="{% url 'library:podcast_list' %}"{% if active_source_type == 'podcast' %} aria-current="page"{% endif %}>Podcasts</a>
+</nav>

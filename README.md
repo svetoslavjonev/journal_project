@@ -1,61 +1,137 @@
 # Knowledge Space
 
-Knowledge Space is a private Django web application for tracking knowledge
-sources and the insights that come from them. The current version is
-book-focused: users can manage a private library, record reading progress, add
-metadata, organize sources with tags, and keep separate journal insights such as
-quotes, notes, ideas, questions, reflections, and summaries.
-
-The project was built as an AI-Assisted Development final exam project. Its first release is
-intentionally scoped like a digital Moleskine for books, while the data model is
-kept flexible enough to support articles, podcasts, videos, academic papers, and
-other source types later.
+Knowledge Space is a private Django application for managing knowledge sources
+and the insights captured from them. It supports books, research papers,
+articles, and individual podcast episodes through a shared `KnowledgeItem`
+model and source-specific detail records.
 
 ## Features
 
-- User registration, login, and logout.
-- Private dashboard for each authenticated user.
-- Book CRUD: create, view, edit, and delete books.
-- Book metadata: title, author, genre, publication date, reading status,
-  publisher, ISBN, page count, summary, and optional JSON metadata.
-- Separate insights linked to knowledge sources.
-- Insight CRUD with multiple insight types.
-- Tags for organizing knowledge items.
-- Search and filtering across books, tags, and insights.
-- User-scoped data access: users cannot view or modify another user's records.
-- Server-rendered Django templates with vanilla CSS and JavaScript.
-- Production-ready settings through environment variables.
+- User registration, login, logout, and strictly user-scoped data access.
+- A mixed-source library with All, Books, Papers, Articles, and Podcasts views.
+- Manual CRUD for books, papers, articles, and podcast episodes.
+- Source-specific status wording backed by shared status values.
+- Personal summaries, tags, and journal insights for every supported source.
+- Paper analysis fields for research questions, findings, methodology, data,
+  asset class, journal, DOI, and URL.
+- Idempotent bulk paper import from the local paper-manager JSON format.
+- Global search across sources, tags, analytical fields, and insights.
+- A source-neutral dashboard with counts, in-progress sources, recent sources,
+  recent insights, and pinned-insight metrics.
+- Server-rendered Django templates with responsive vanilla CSS and JavaScript.
+
+## Supported Sources
+
+All sources store shared fields on `KnowledgeItem`, including title, creator,
+status, summary, source URL, dates, archive state, tags, and insights.
+
+### Books
+
+`BookDetail` stores author, genre, ISBN, publisher, page count, publication date,
+original language, edition, and optional JSON metadata.
+
+### Papers
+
+`PaperDetail` stores:
+
+- publication year
+- journal
+- DOI
+- asset class
+- sample size, data, and source
+- methodology and research design
+- key research question
+- key findings and practical applications
+
+### Articles
+
+`ArticleDetail` stores the publication or site name. Publication date, authors,
+URL, status, and personal summary use common `KnowledgeItem` fields.
+
+### Podcast Episodes
+
+One `KnowledgeItem` represents one episode. `PodcastEpisodeDetail` stores the
+show name and guests, while hosts use `KnowledgeItem.creator`.
+
+The model reserves source-type values for videos, courses, and miscellaneous
+sources, but manual workflows for those types are not currently implemented.
+
+## Statuses
+
+The database uses the same status values for every source:
+
+```text
+queued
+in_progress
+completed
+paused
+abandoned
+```
+
+The interface presents natural labels by source type:
+
+| Source | Queued | In progress | Completed |
+|---|---|---|---|
+| Book | Want to read | Reading | Finished |
+| Paper | To read | Reading | Read |
+| Article | To read | Reading | Read |
+| Podcast | Queue | Listening | Listened |
+
+Paused and abandoned use their generic labels.
+
+## Paper JSON Import
+
+Open **Library → Papers → Import papers** and upload the JSON file produced by
+the separate paper-manager application. The applications do not share a
+database, API, or runtime dependency.
+
+The importer accepts a JSON list containing:
+
+```text
+title
+year
+authors
+asset class
+sample size, data and source
+methodology and research design
+key research question
+key findings and practical applications
+```
+
+Imported papers belong to the authenticated user, use status `queued` (`To
+read`), and convert `year = 0` to an unknown publication year. The importer does
+not automatically create summaries, tags, insights, or reading dates.
+
+Duplicate detection uses a normalized fingerprint of title, publication year,
+and authors. It compares only against the current user's papers and records
+already accepted in the same upload. Existing matches are skipped and never
+updated, so re-importing the same accumulated JSON file is safe.
+
+Malformed records are reported independently without blocking valid records.
+Malformed JSON files do not modify the database.
 
 ## Architecture
 
-The application is a simple Django monolith.
+The project is a Django monolith with four main apps:
 
-Main apps:
+- `accounts` manages the custom user model and authentication.
+- `core` owns the homepage, dashboard, global search, and health check.
+- `library` owns sources, detail models, tags, CRUD workflows, and paper import.
+- `journal` owns insights linked to `KnowledgeItem`.
 
-- `accounts` handles the custom user model, signup, login, and logout.
-- `core` owns the homepage, dashboard, search page, and health check.
-- `library` owns knowledge sources, book details, tags, and book workflows.
-- `journal` owns insights and journal workflows.
-
-Core model design:
-
-- `KnowledgeItem` is the generic source model. In v1, most items are books.
-- `BookDetail` stores book-specific metadata for a `KnowledgeItem`.
-- `Insight` stores user-created notes, quotes, questions, ideas, reflections,
-  and summaries linked to a `KnowledgeItem`.
-- `Tag` and `KnowledgeItemTag` organize sources privately per user.
-
-This means books are represented as:
+The core relationship is:
 
 ```text
-KnowledgeItem(source_type="book")
-  -> BookDetail
-  -> Insight[]
-  -> Tag[]
+User
+  └── KnowledgeItem
+        ├── one source-specific Detail
+        ├── Insight[]
+        └── KnowledgeItemTag[] ── Tag
 ```
 
-The `Insight` model links to `KnowledgeItem`, not directly to `BookDetail`, so
-future source types can reuse the same journal system.
+Selectors scope reads to the authenticated user. Services validate and group
+multi-model writes in database transactions. See `docs/architecture.md` for the
+current implementation architecture.
 
 ## Tech Stack
 
@@ -99,52 +175,25 @@ future source types can reuse the same journal system.
    python manage.py runserver
    ```
 
-6. Open the app.
-
-   ```text
-   http://127.0.0.1:8000/
-   ```
-
-The Django admin is available at:
-
-```text
-http://127.0.0.1:8000/admin/
-```
+6. Open `http://127.0.0.1:8000/`. The Django admin is available at
+   `http://127.0.0.1:8000/admin/`.
 
 ## Testing
 
-Run the full test suite with:
+Run the full suite with:
 
 ```powershell
 python manage.py test
 ```
 
-The tests cover:
-
-- Authentication flows.
-- Model validation.
-- Book CRUD.
-- Insight CRUD.
-- Tags.
-- Search and filtering.
-- Delete behavior.
-- Cross-user permission protection.
-
-Permission tests are especially important because every user's library and
-journal data must remain private.
+Coverage includes authentication, migrations, model integrity, all source CRUD
+flows, tags, insights, search, dashboard behavior, import idempotency, deletion,
+and cross-user permission protection.
 
 ## Environment Configuration
 
-Local machine-specific overrides can be placed in:
-
-```text
-journal_project/local_settings.py
-```
-
-Use this only for local development. Production configuration should use
-environment variables.
-
-Important production variables:
+Local overrides may be placed in `journal_project/local_settings.py`. Production
+configuration should use environment variables:
 
 ```text
 DJANGO_SECRET_KEY=replace-with-a-long-random-secret
@@ -154,7 +203,7 @@ DATABASE_URL=postgresql://user:password@host:5432/database
 DJANGO_CSRF_TRUSTED_ORIGINS=https://example.com,https://www.example.com
 ```
 
-Optional security and deployment variables:
+Optional security variables include:
 
 ```text
 DJANGO_SECURE_SSL_REDIRECT=True
@@ -166,49 +215,18 @@ DJANGO_LOG_LEVEL=INFO
 DJANGO_DB_CONN_MAX_AGE=60
 ```
 
-Only enable HSTS after HTTPS is verified for the deployed domain.
+Only enable HSTS after HTTPS is verified.
 
 ## Static and Media Files
 
-Source static assets live in:
-
-```text
-staticfiles/
-```
-
-Collected production assets are written to:
-
-```text
-collected_static/
-```
-
-Future uploaded media belongs in:
-
-```text
-mediafiles/
-```
-
-For deployment, run:
+Source assets live in `staticfiles/`, collected production assets in
+`collected_static/`, and uploaded media in `mediafiles/`.
 
 ```powershell
 python manage.py collectstatic --noinput
 ```
 
-## Deployment Checklist
-
-- Set `DJANGO_DEBUG=False`.
-- Set `DJANGO_SECRET_KEY` outside source control.
-- Set `DJANGO_ALLOWED_HOSTS`.
-- Set `DJANGO_CSRF_TRUSTED_ORIGINS`.
-- Use PostgreSQL through `DATABASE_URL`.
-- Run migrations.
-- Run `collectstatic`.
-- Create an admin user for the production database.
-- Serve static files at `/static/`.
-- Enable HTTPS and secure cookies.
-- Confirm the health endpoint works at `/health/`.
-
-Useful production checks:
+## Deployment Checks
 
 ```powershell
 python manage.py check --deploy
@@ -216,32 +234,5 @@ python manage.py migrate
 python manage.py collectstatic --noinput
 ```
 
-## Project Structure
-
-```text
-journal_project/
-  accounts/
-  core/
-  journal/
-  library/
-  settings.py
-  urls.py
-templates/
-staticfiles/
-manage.py
-requirements.txt
-```
-
-## Current Scope and Future Work
-
-Current scope is book-first. The architecture is ready for broader knowledge
-sources, but article, podcast, video, paper, and course detail models are not
-implemented yet.
-
-Planned future improvements include:
-
-- Additional source types.
-- Collections.
-- Richer search.
-- Import workflows.
-- More advanced insight linking.
+Configure HTTPS, secure cookies, allowed hosts, a production secret key, and a
+PostgreSQL `DATABASE_URL`. Confirm the public health endpoint at `/health/`.

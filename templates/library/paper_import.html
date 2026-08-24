@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Import papers | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="form-panel paper-form-panel">
+    <p class="eyebrow">Library · Papers</p>
+    <h1>Import papers</h1>
+    <p>Upload the JSON file produced by the paper-manager application.</p>
+
+    <aside class="panel import-guidance">
+      <p>Existing papers will be skipped.</p>
+      <p>New papers will be added with status “To read”.</p>
+    </aside>
+
+    <form method="post" enctype="multipart/form-data" class="form-stack" novalidate>
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% include 'includes/form_field.html' with field=form.json_file %}
+      <div class="actions">
+        <button class="button" type="submit">Import</button>
+        <a class="button secondary" href="{% url 'library:paper_list' %}">Cancel</a>
+      </div>
+    </form>
+  </section>
+
+  {% if result is not None %}
+    <section class="panel import-report" aria-live="polite">
+      <p class="eyebrow">Import complete</p>
+      <h2>Import summary</h2>
+      <dl class="detail-list">
+        <dt>Imported</dt>
+        <dd>{{ result.imported }}</dd>
+        <dt>Skipped duplicates</dt>
+        <dd>{{ result.skipped_duplicates }}</dd>
+        <dt>Invalid</dt>
+        <dd>{{ result.invalid }}</dd>
+      </dl>
+
+      {% if result.invalid_records %}
+        <h3>Invalid records</h3>
+        <ul class="item-list clean-list">
+          {% for invalid_record in result.invalid_records %}
+            <li>Record {{ invalid_record.record_number }} — {{ invalid_record.reason }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endblock %}

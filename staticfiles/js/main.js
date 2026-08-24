@@ -21,6 +21,52 @@ document.querySelectorAll('textarea').forEach((textarea) => {
   textarea.addEventListener('input', () => autosize(textarea));
 });
 
+const libraryViewStorageKey = 'knowledge-space-library-view';
+
+const readLibraryView = () => {
+  try {
+    const storedView = window.localStorage.getItem(libraryViewStorageKey);
+    return storedView === 'list' ? 'list' : 'grid';
+  } catch {
+    return 'grid';
+  }
+};
+
+const storeLibraryView = (view) => {
+  try {
+    window.localStorage.setItem(libraryViewStorageKey, view);
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+document.querySelectorAll('[data-library-collection]').forEach((collection) => {
+  const buttons = collection.querySelectorAll('[data-library-view-button]');
+  const panels = collection.querySelectorAll('[data-library-view-panel]');
+
+  const setView = (view, persist = false) => {
+    buttons.forEach((button) => {
+      const isActive = button.dataset.libraryViewButton === view;
+      button.setAttribute('aria-pressed', String(isActive));
+    });
+    panels.forEach((panel) => {
+      const isActive = panel.dataset.libraryViewPanel === view;
+      panel.hidden = !isActive;
+      panel.setAttribute('aria-hidden', String(!isActive));
+    });
+    collection.dataset.libraryView = view;
+    if (persist) storeLibraryView(view);
+  };
+
+  setView(readLibraryView());
+  buttons.forEach((button) => {
+    button.addEventListener('click', () => {
+      setView(button.dataset.libraryViewButton, true);
+    });
+  });
+});
+
 /* "/" focuses search */
 document.addEventListener('keydown', (event) => {
   if (event.key !== '/' || event.ctrlKey || event.metaKey || event.altKey) {

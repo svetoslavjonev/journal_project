@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Books | Knowledge Space{% endblock %}
+{% block title %}Papers | Knowledge Space{% endblock %}
 
 {% block extra_css %}
   <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
@@ -11,10 +11,13 @@
   <section class="page-heading page-heading-row">
     <div>
       <p class="eyebrow">Library</p>
-      <h1>Books</h1>
-      <p>Manage the book sources in your private knowledge space.</p>
+      <h1>Papers</h1>
+      <p>Manage research papers and the practical knowledge extracted from them.</p>
     </div>
-    <a class="button" href="{% url 'library:book_create' %}">Add book</a>
+    <div class="actions">
+      <a class="button" href="{% url 'library:paper_create' %}">Add paper</a>
+      <a class="button secondary" href="{% url 'library:paper_import' %}">Import papers</a>
+    </div>
   </section>
 
   {% include 'library/includes/library_tabs.html' %}
@@ -22,7 +25,7 @@
   <form method="get" class="filter-bar">
     <div class="form-field">
       <label for="id_q">Search</label>
-      <input id="id_q" type="search" name="q" value="{{ filters.query }}" placeholder="Title, author, genre">
+      <input id="id_q" type="search" name="q" value="{{ filters.query }}" placeholder="Title, authors, research content">
     </div>
     <div class="form-field">
       <label for="id_status">Status</label>
@@ -34,8 +37,12 @@
       </select>
     </div>
     <div class="form-field">
-      <label for="id_genre">Genre</label>
-      <input id="id_genre" type="search" name="genre" value="{{ filters.genre }}">
+      <label for="id_year">Publication year</label>
+      <input id="id_year" type="number" min="1" name="year" value="{{ filters.publication_year }}">
+    </div>
+    <div class="form-field">
+      <label for="id_asset_class">Asset class</label>
+      <input id="id_asset_class" type="search" name="asset_class" value="{{ filters.asset_class }}">
     </div>
     <div class="form-field">
       <label for="id_tag">Tag</label>
@@ -48,19 +55,20 @@
     </div>
     <div class="filter-actions">
       <button class="button" type="submit">Filter</button>
-      <a class="button secondary" href="{% url 'library:book_list' %}">Clear</a>
+      <a class="button secondary" href="{% url 'library:paper_list' %}">Clear</a>
     </div>
   </form>
 
-  {% if books %}
-    {% include 'library/includes/collection_views.html' with items=books collection_label='Books' %}
+  {% if papers %}
+    {% include 'library/includes/collection_views.html' with items=papers collection_label='Papers' %}
   {% else %}
     <section class="empty-state">
-      <h2>No books found</h2>
-      <p>Add your first book or clear the current filters.</p>
+      <h2>No papers found</h2>
+      <p>Add your first paper or clear the current filters.</p>
       <div class="actions">
-        <a class="button" href="{% url 'library:book_create' %}">Add book</a>
-        <a class="button secondary" href="{% url 'library:book_list' %}">Clear filters</a>
+        <a class="button" href="{% url 'library:paper_create' %}">Add paper</a>
+        <a class="button secondary" href="{% url 'library:paper_import' %}">Import papers</a>
+        <a class="button secondary" href="{% url 'library:paper_list' %}">Clear filters</a>
       </div>
     </section>
   {% endif %}

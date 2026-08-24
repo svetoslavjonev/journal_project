@@ -1,0 +1,19 @@
+<section class="library-collection" data-library-collection>
+  <header class="library-view-toolbar">
+    <span class="library-view-label">View</span>
+    <div class="library-view-toggle" role="group" aria-label="Choose library view">
+      <button type="button" data-library-view-button="grid" aria-pressed="true">Grid</button>
+      <button type="button" data-library-view-button="list" aria-pressed="false">List</button>
+    </div>
+  </header>
+
+  <section class="source-card-grid" data-library-view-panel="grid" aria-label="{{ collection_label }} grid view">
+    {% for item in items %}
+      {% include 'library/includes/source_card.html' with item=item %}
+    {% endfor %}
+  </section>
+
+  <section class="table-wrap source-list-wrap" data-library-view-panel="list" aria-label="{{ collection_label }} list view" hidden>
+    {% include 'library/includes/source_table.html' with items=items %}
+  </section>
+</section>

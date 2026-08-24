@@ -4,24 +4,19 @@
 {% block title %}{{ title }} | Knowledge Space{% endblock %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/pages/journal.css' %}">
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
 {% endblock %}
 
 {% block content %}
   <section class="form-panel">
-    <p class="eyebrow">Journal</p>
+    <p class="eyebrow">Library · {{ source_label }}</p>
     <h1>{{ title }}</h1>
-    {% if source %}
-      <p>Source: {{ source.title }}</p>
-    {% endif %}
     <form method="post" class="form-stack" novalidate>
       {% csrf_token %}
       {{ form.non_field_errors }}
-
       {% for field in form %}
         {% include 'includes/form_field.html' with field=field %}
       {% endfor %}
-
       <div class="actions">
         <button class="button" type="submit">{{ submit_label }}</button>
         <a class="button secondary" href="{{ cancel_url }}">Cancel</a>

@@ -5,7 +5,7 @@ from django.shortcuts import redirect, render
 from journal_project.journal.selectors import filter_user_insights
 from journal_project.journal.models import Insight
 from journal_project.library.models import KnowledgeItem
-from journal_project.library.selectors import filter_user_books
+from journal_project.library.selectors import filter_user_knowledge_items
 
 
 def home(request):
@@ -20,22 +20,26 @@ def health(request):
 
 @login_required
 def dashboard(request):
-    user_books = filter_user_books(request.user)
+    user_sources = filter_user_knowledge_items(request.user)
     user_insights = filter_user_insights(request.user)
-    currently_reading = user_books.filter(status=KnowledgeItem.Status.READING)[:4]
-    recent_books = user_books[:4]
+    in_progress_sources = user_sources.filter(
+        status=KnowledgeItem.Status.IN_PROGRESS
+    )[:4]
+    recent_sources = user_sources[:4]
     recent_insights = user_insights[:4]
 
     return render(
         request,
         'core/dashboard.html',
         {
-            'book_count': user_books.count(),
+            'source_count': user_sources.count(),
             'insight_count': user_insights.count(),
-            'current_count': user_books.filter(status=KnowledgeItem.Status.READING).count(),
+            'in_progress_count': user_sources.filter(
+                status=KnowledgeItem.Status.IN_PROGRESS
+            ).count(),
             'pinned_count': user_insights.filter(pinned=True).count(),
-            'currently_reading': currently_reading,
-            'recent_books': recent_books,
+            'in_progress_sources': in_progress_sources,
+            'recent_sources': recent_sources,
             'recent_insights': recent_insights,
             'insight_types': Insight.InsightType.choices,
         },
@@ -45,7 +49,9 @@ def dashboard(request):
 @login_required
 def search(request):
     query = request.GET.get('q', '').strip()
-    books = filter_user_books(request.user, query=query) if query else []
+    sources = (
+        filter_user_knowledge_items(request.user, query=query) if query else []
+    )
     insights = filter_user_insights(request.user, query=query) if query else []
 
     return render(
@@ -53,7 +59,7 @@ def search(request):
         'core/search.html',
         {
             'query': query,
-            'books': books,
+            'sources': sources,
             'insights': insights,
         },
     )

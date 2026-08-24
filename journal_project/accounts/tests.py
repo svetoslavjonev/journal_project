@@ -64,4 +64,4 @@ class AuthenticationTests(TestCase):
         response = self.client.get(reverse('dashboard'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Your journal workspace.')
+        self.assertContains(response, 'Your knowledge workspace.')

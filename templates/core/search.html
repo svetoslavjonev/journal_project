@@ -16,7 +16,7 @@
   <form method="get" class="filter-bar search-bar">
     <div class="form-field">
       <label for="id_q">Search</label>
-      <input id="id_q" type="search" name="q" value="{{ query }}" placeholder="Sources, creators, notes, quotes">
+      <input id="id_q" type="search" name="q" value="{{ query }}" placeholder="Sources, creators, knowledge, notes">
     </div>
     <div class="filter-actions">
       <button class="button" type="submit">Search</button>
@@ -26,18 +26,25 @@
   {% if query %}
     <section class="detail-grid">
       <article class="panel">
-        <h2>Books</h2>
-        {% if books %}
+        <h2>Sources</h2>
+        {% if sources %}
           <ul class="search-results-list">
-            {% for book in books %}
+            {% for source in sources %}
               <li>
-                <a href="{% url 'library:book_detail' book.uuid %}">{{ book.title }}</a>
-                <span class="muted">{{ book.creator }}</span>
+                <span class="eyebrow search-result-type">{{ source.get_source_type_display|upper }}</span>
+                <a href="{{ source.get_absolute_url }}">{{ source.title }}</a>
+                <span class="muted">
+                  {% if source.source_type == 'podcast' %}
+                    {{ source.podcast_episode_detail.show_name|default:source.creator }}
+                  {% else %}
+                    {{ source.creator|default:'Creator not recorded' }}{% if source.source_type == 'paper' and source.paper_detail.publication_year %} · {{ source.paper_detail.publication_year }}{% elif source.source_type == 'article' and source.article_detail.publication_name %} · {{ source.article_detail.publication_name }}{% endif %}
+                  {% endif %}
+                </span>
               </li>
             {% endfor %}
           </ul>
         {% else %}
-          <p>No matching books.</p>
+          <p>No matching sources.</p>
         {% endif %}
       </article>
 
@@ -50,7 +57,10 @@
                 <a href="{% url 'journal:insight_edit' insight.uuid %}">
                   {% if insight.title %}{{ insight.title }}{% else %}{{ insight.get_insight_type_display }}{% endif %}
                 </a>
-                <span class="muted">{{ insight.knowledge_item.title }}</span>
+                <span class="muted">
+                  {{ insight.knowledge_item.get_source_type_display }} ·
+                  <a class="search-parent-link" href="{{ insight.knowledge_item.get_absolute_url }}">{{ insight.knowledge_item.title }}</a>
+                </span>
               </li>
             {% endfor %}
           </ul>
@@ -62,7 +72,7 @@
   {% else %}
     <section class="empty-state">
       <h2>Enter a search term</h2>
-      <p>Search source titles, creators, genres, summaries, insight titles, and insight content.</p>
+      <p>Search source titles, creators, summaries, tags, analytical fields, and insights.</p>
     </section>
   {% endif %}
 {% endblock %}

@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete {{ paper.title }} | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="auth-panel">
+    <p class="eyebrow">Delete paper</p>
+    <h1>Delete {{ paper.title }}?</h1>
+    <p>This permanently deletes the paper, its analytical details, and attached insights.</p>
+    <form method="post" class="form-stack" data-confirm="Delete this paper and its insights?">
+      {% csrf_token %}
+      <div class="actions">
+        <button class="button danger" type="submit">Delete paper</button>
+        <a class="button secondary" href="{{ cancel_url }}">Cancel</a>
+      </div>
+    </form>
+  </section>
+{% endblock %}

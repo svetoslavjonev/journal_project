@@ -1,0 +1,21 @@
+{% if field.field.widget.input_type == 'checkbox' %}
+  <div class="form-field form-field-toggle{% if field.errors %} has-error{% endif %}">
+    <div class="form-toggle-copy">
+      {{ field.label_tag }}
+      {% if field.help_text %}
+        <p class="help-text">{{ field.help_text }}</p>
+      {% endif %}
+    </div>
+    {{ field }}
+    {{ field.errors }}
+  </div>
+{% else %}
+  <div class="form-field{% if field.errors %} has-error{% endif %}">
+    {{ field.label_tag }}
+    {{ field }}
+    {% if field.help_text %}
+      <p class="help-text">{{ field.help_text }}</p>
+    {% endif %}
+    {{ field.errors }}
+  </div>
+{% endif %}

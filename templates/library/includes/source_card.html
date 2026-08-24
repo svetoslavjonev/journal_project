@@ -1,0 +1,25 @@
+<article class="panel source-card source-card-{{ item.source_type }}">
+  <header class="source-card-header">
+    <p class="eyebrow">{{ item.get_source_type_display }}</p>
+    <h2><a href="{{ item.get_absolute_url }}">{{ item.title }}</a></h2>
+  </header>
+
+  <p class="source-card-context">
+    {% if item.source_type == 'podcast' and item.podcast_episode_detail.show_name %}
+      {{ item.podcast_episode_detail.show_name }} · {{ item.creator|default:'Hosts not recorded' }}
+    {% else %}
+      {{ item.creator|default:'Creator not recorded' }}{% if item.source_type == 'paper' and item.paper_detail.publication_year %} · {{ item.paper_detail.publication_year }}{% elif item.source_type == 'article' and item.article_detail.publication_name %} · {{ item.article_detail.publication_name }}{% endif %}{% if item.source_type == 'article' and item.date_published %} · {{ item.date_published|date:'j M Y' }}{% endif %}
+    {% endif %}
+  </p>
+
+  <footer class="source-card-footer">
+    <span class="source-status">{{ item.get_status_display }}</span>
+    <ul class="tag-list" aria-label="Tags">
+      {% for tag in item.tags.all %}
+        <li><a class="tag-chip" href="{% url 'library:index' %}?tag={{ tag.slug }}">{{ tag.name }}</a></li>
+      {% empty %}
+        <li class="muted">No tags</li>
+      {% endfor %}
+    </ul>
+  </footer>
+</article>

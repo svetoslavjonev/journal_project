@@ -89,7 +89,7 @@ def insight_create_for_item(request, item_uuid):
                 _add_validation_errors(form, error)
             else:
                 messages.success(request, 'Insight added.')
-                return redirect('library:book_detail', book_uuid=source.uuid)
+                return redirect(source.get_absolute_url())
     else:
         form = InsightForm(user=request.user, source=source)
 
@@ -101,7 +101,7 @@ def insight_create_for_item(request, item_uuid):
             'source': source,
             'title': f'Add insight for {source.title}',
             'submit_label': 'Add insight',
-            'cancel_url': reverse('library:book_detail', kwargs={'book_uuid': source.uuid}),
+            'cancel_url': source.get_absolute_url(),
         },
     )
 

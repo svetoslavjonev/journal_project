@@ -1,0 +1,60 @@
+<table class="data-table source-list-table">
+  <thead>
+    <tr>
+      <th>Source</th>
+      <th>Creator</th>
+      <th>Details</th>
+      <th>Status</th>
+      <th>Tags</th>
+      <th>Insights</th>
+      <th>Updated</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in items %}
+      <tr>
+        <td data-label="Source" class="source-title-cell">
+          <span class="source-type-indicator">{{ item.get_source_type_display|upper }}</span>
+          <a href="{{ item.get_absolute_url }}">{{ item.title }}</a>
+        </td>
+        <td data-label="Creator">{{ item.creator|default:'-' }}</td>
+        <td data-label="Details">
+          {% if item.source_type == 'book' %}
+            {{ item.book_detail.genre|default:'-' }}
+          {% elif item.source_type == 'paper' %}
+            {% if item.paper_detail.publication_year %}{{ item.paper_detail.publication_year }}{% endif %}{% if item.paper_detail.publication_year and item.paper_detail.asset_class %} · {% endif %}{{ item.paper_detail.asset_class|default_if_none:''|default:'-' }}
+          {% elif item.source_type == 'article' %}
+            {{ item.article_detail.publication_name|default:'-' }}
+          {% elif item.source_type == 'podcast' %}
+            {{ item.podcast_episode_detail.show_name|default:'-' }}
+          {% else %}
+            -
+          {% endif %}
+        </td>
+        <td data-label="Status"><span class="source-status">{{ item.get_status_display }}</span></td>
+        <td data-label="Tags" class="source-list-tags">
+          {% for tag in item.tags.all %}
+            <a class="tag-chip" href="{% url 'library:index' %}?tag={{ tag.slug }}">{{ tag.name }}</a>
+          {% empty %}
+            <span class="muted">No tags</span>
+          {% endfor %}
+        </td>
+        <td data-label="Insights">{{ item.insight_count }}</td>
+        <td data-label="Updated">{{ item.updated_at|date:'M j, Y' }}</td>
+        <td data-label="Actions" class="source-actions-cell">
+          {% with edit_url=item.get_edit_url delete_url=item.get_delete_url %}
+            {% if edit_url and delete_url %}
+              <div class="source-row-actions">
+                <a href="{{ edit_url }}">Edit</a>
+                <a href="{{ delete_url }}">Delete</a>
+              </div>
+            {% else %}
+              <span class="muted">-</span>
+            {% endif %}
+          {% endwith %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

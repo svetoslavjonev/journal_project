@@ -3,6 +3,7 @@ import uuid
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
 from django.utils.text import slugify
 from django.utils import timezone
 
@@ -18,11 +19,34 @@ class KnowledgeItem(models.Model):
         MISC = 'misc', 'Miscellaneous'
 
     class Status(models.TextChoices):
-        WANT_TO_READ = 'want_to_read', 'Want to read'
-        READING = 'reading', 'Reading'
-        FINISHED = 'finished', 'Finished'
+        QUEUED = 'queued', 'Queued'
+        IN_PROGRESS = 'in_progress', 'In progress'
+        COMPLETED = 'completed', 'Completed'
         PAUSED = 'paused', 'Paused'
         ABANDONED = 'abandoned', 'Abandoned'
+
+    STATUS_LABELS_BY_SOURCE = {
+        SourceType.BOOK: {
+            Status.QUEUED: 'Want to read',
+            Status.IN_PROGRESS: 'Reading',
+            Status.COMPLETED: 'Finished',
+        },
+        SourceType.PAPER: {
+            Status.QUEUED: 'To read',
+            Status.IN_PROGRESS: 'Reading',
+            Status.COMPLETED: 'Read',
+        },
+        SourceType.ARTICLE: {
+            Status.QUEUED: 'To read',
+            Status.IN_PROGRESS: 'Reading',
+            Status.COMPLETED: 'Read',
+        },
+        SourceType.PODCAST: {
+            Status.QUEUED: 'Queue',
+            Status.IN_PROGRESS: 'Listening',
+            Status.COMPLETED: 'Listened',
+        },
+    }
 
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(
@@ -41,16 +65,16 @@ class KnowledgeItem(models.Model):
         choices=SourceType.choices,
         default=SourceType.BOOK,
     )
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=500)
     subtitle = models.CharField(max_length=255, blank=True)
-    creator = models.CharField(max_length=255, blank=True)
+    creator = models.CharField(max_length=1000, blank=True)
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
-        default=Status.WANT_TO_READ,
+        default=Status.QUEUED,
     )
     summary = models.TextField(blank=True)
-    source_url = models.URLField(blank=True)
+    source_url = models.URLField(blank=True, max_length=2048)
     date_published = models.DateField(null=True, blank=True)
     date_started = models.DateField(null=True, blank=True)
     date_finished = models.DateField(null=True, blank=True)
@@ -69,6 +93,76 @@ class KnowledgeItem(models.Model):
 
     def __str__(self):
         return self.title
+
+    def get_absolute_url(self) -> str:
+        """Return the implemented detail URL for this source type."""
+        if self.source_type == self.SourceType.BOOK:
+            return reverse('library:book_detail', kwargs={'book_uuid': self.uuid})
+        if self.source_type == self.SourceType.PAPER:
+            return reverse('library:paper_detail', kwargs={'paper_uuid': self.uuid})
+        if self.source_type == self.SourceType.ARTICLE:
+            return reverse(
+                'library:article_detail',
+                kwargs={'article_uuid': self.uuid},
+            )
+        if self.source_type == self.SourceType.PODCAST:
+            return reverse(
+                'library:podcast_detail',
+                kwargs={'podcast_uuid': self.uuid},
+            )
+        return f"{reverse('library:index')}?source_type={self.source_type}"
+
+    def get_edit_url(self) -> str:
+        """Return the edit URL for an implemented source type."""
+        route_names = {
+            self.SourceType.BOOK: ('library:book_edit', 'book_uuid'),
+            self.SourceType.PAPER: ('library:paper_edit', 'paper_uuid'),
+            self.SourceType.ARTICLE: ('library:article_edit', 'article_uuid'),
+            self.SourceType.PODCAST: ('library:podcast_edit', 'podcast_uuid'),
+        }
+        route = route_names.get(self.source_type)
+        if route is None:
+            return ''
+        route_name, parameter_name = route
+        return reverse(route_name, kwargs={parameter_name: self.uuid})
+
+    def get_delete_url(self) -> str:
+        """Return the delete URL for an implemented source type."""
+        route_names = {
+            self.SourceType.BOOK: ('library:book_delete', 'book_uuid'),
+            self.SourceType.PAPER: ('library:paper_delete', 'paper_uuid'),
+            self.SourceType.ARTICLE: ('library:article_delete', 'article_uuid'),
+            self.SourceType.PODCAST: ('library:podcast_delete', 'podcast_uuid'),
+        }
+        route = route_names.get(self.source_type)
+        if route is None:
+            return ''
+        route_name, parameter_name = route
+        return reverse(route_name, kwargs={parameter_name: self.uuid})
+
+    @classmethod
+    def status_label(cls, status: str, source_type: str) -> str:
+        """Return the natural display label for a source and stored status."""
+        source_labels = cls.STATUS_LABELS_BY_SOURCE.get(source_type, {})
+        if status in source_labels:
+            return source_labels[status]
+
+        try:
+            return cls.Status(status).label
+        except ValueError:
+            return status.replace('_', ' ').capitalize()
+
+    @classmethod
+    def status_choices_for_source(cls, source_type: str) -> list[tuple[str, str]]:
+        """Return generic status values paired with source-specific labels."""
+        return [
+            (status, cls.status_label(status, source_type))
+            for status in cls.Status.values
+        ]
+
+    def get_status_display(self) -> str:
+        """Return this item's source-specific status label."""
+        return self.status_label(self.status, self.source_type)
 
     def clean(self):
         errors = {}
@@ -149,6 +243,110 @@ class BookDetail(models.Model):
             KnowledgeItem.objects.filter(pk=self.knowledge_item_id).update(**updates)
             for field, value in updates.items():
                 setattr(self.knowledge_item, field, value)
+
+
+class PaperDetail(models.Model):
+    knowledge_item = models.OneToOneField(
+        KnowledgeItem,
+        on_delete=models.CASCADE,
+        related_name='paper_detail',
+    )
+    publication_year = models.PositiveIntegerField(null=True, blank=True)
+    journal = models.CharField(max_length=500, blank=True)
+    doi = models.CharField(max_length=255, blank=True)
+    asset_class = models.CharField(max_length=255, blank=True)
+    sample_size_data_source = models.TextField(blank=True)
+    methodology_research_design = models.TextField(blank=True)
+    key_research_question = models.TextField(blank=True)
+    key_findings_practical_applications = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['knowledge_item__title']
+
+    def __str__(self) -> str:
+        return f'Paper details for {self.knowledge_item.title}'
+
+    def clean(self) -> None:
+        errors = {}
+
+        if (
+            self.knowledge_item_id
+            and self.knowledge_item.source_type != KnowledgeItem.SourceType.PAPER
+        ):
+            errors['knowledge_item'] = (
+                'Paper details can only attach to paper sources.'
+            )
+
+        if self.publication_year is not None and self.publication_year <= 0:
+            errors['publication_year'] = (
+                'Publication year must be positive or left blank.'
+            )
+
+        if errors:
+            raise ValidationError(errors)
+
+
+class ArticleDetail(models.Model):
+    knowledge_item = models.OneToOneField(
+        KnowledgeItem,
+        on_delete=models.CASCADE,
+        related_name='article_detail',
+    )
+    publication_name = models.CharField(max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['knowledge_item__title']
+
+    def __str__(self) -> str:
+        return f'Article details for {self.knowledge_item.title}'
+
+    def clean(self) -> None:
+        if (
+            self.knowledge_item_id
+            and self.knowledge_item.source_type != KnowledgeItem.SourceType.ARTICLE
+        ):
+            raise ValidationError(
+                {
+                    'knowledge_item': (
+                        'Article details can only attach to article sources.'
+                    )
+                }
+            )
+
+
+class PodcastEpisodeDetail(models.Model):
+    knowledge_item = models.OneToOneField(
+        KnowledgeItem,
+        on_delete=models.CASCADE,
+        related_name='podcast_episode_detail',
+    )
+    show_name = models.CharField(max_length=500, blank=True)
+    guests = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['knowledge_item__title']
+
+    def __str__(self) -> str:
+        return f'Podcast episode details for {self.knowledge_item.title}'
+
+    def clean(self) -> None:
+        if (
+            self.knowledge_item_id
+            and self.knowledge_item.source_type != KnowledgeItem.SourceType.PODCAST
+        ):
+            raise ValidationError(
+                {
+                    'knowledge_item': (
+                        'Podcast episode details can only attach to podcast sources.'
+                    )
+                }
+            )
 
 
 class Tag(models.Model):

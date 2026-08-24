@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} | Knowledge Space{% endblock %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/pages/library.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="page-heading page-heading-row">
+    <div>
+      <p class="eyebrow">Article</p>
+      <h1>{{ article.title }}</h1>
+      <p>{{ article.creator }}</p>
+    </div>
+    <div class="actions">
+      <a class="button" href="{% url 'library:item_insight_create' article.uuid %}">Add insight</a>
+      <a class="button secondary" href="{% url 'library:article_edit' article.uuid %}">Edit</a>
+      <a class="button danger" href="{% url 'library:article_delete' article.uuid %}">Delete</a>
+    </div>
+  </section>
+
+  <section class="detail-grid">
+    <article class="panel">
+      <h2>Reference</h2>
+      <dl class="detail-list">
+        <dt>Publication / site</dt>
+        <dd>{{ detail.publication_name|default:'-' }}</dd>
+        <dt>Publication date</dt>
+        <dd>{{ article.date_published|date:'j F Y'|default:'-' }}</dd>
+        <dt>URL</dt>
+        <dd>{% if article.source_url %}<a href="{{ article.source_url }}" rel="noopener noreferrer">Open source</a>{% else %}-{% endif %}</dd>
+        <dt>Status</dt>
+        <dd>{{ article.get_status_display }}</dd>
+      </dl>
+    </article>
+    <article class="panel">
+      <h2>My Summary</h2>
+      {% if article.summary %}<p>{{ article.summary|linebreaksbr }}</p>{% else %}<p>No summary yet.</p>{% endif %}
+    </article>
+  </section>
+
+  {% include 'library/includes/source_tags_insights.html' with item=article %}
+{% endblock %}

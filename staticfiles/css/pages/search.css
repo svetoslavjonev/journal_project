@@ -59,3 +59,14 @@
   font-family: var(--font-sans);
   font-size: 0.85rem;
 }
+
+.search-results-list .search-result-type {
+  margin: 0;
+  font-size: 0.72rem;
+}
+
+.search-results-list .search-parent-link {
+  font-family: var(--font-sans);
+  font-size: inherit;
+  font-weight: 600;
+}
